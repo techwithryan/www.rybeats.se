@@ -1,0 +1,216 @@
+.music-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  z-index: 1100;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s ease;
+}
+
+body.mobile-menu-open .music-player {
+  pointer-events: none;
+}
+
+.player-minimized {
+  cursor: pointer;
+  user-select: none;
+}
+
+.minimized-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  position: relative;
+}
+
+.minimized-image {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.minimized-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.minimized-name {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-1);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.minimized-details {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.minimized-toggle {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  flex-shrink: 0;
+}
+
+.minimized-progress {
+  height: 2px;
+  background-color: var(--accent);
+  width: 0;
+  transition: width 0.1s linear;
+}
+
+.player-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.player-image {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--r-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.player-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.player-text h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ink-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.player-text p {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-3);
+}
+
+.minimize-btn {
+  background: none;
+  border: none;
+  color: var(--ink-3);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.minimize-btn:hover {
+  color: var(--ink-1);
+}
+
+.player-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.player-progress span {
+  font-size: 0.8rem;
+  color: var(--ink-3);
+  min-width: 35px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 4px;
+  background-color: var(--surface-2);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--accent);
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+.player-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.control-btn,
+.play-btn {
+  background: none;
+  border: none;
+  color: var(--ink-1);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.control-btn:hover {
+  color: var(--accent);
+}
+
+.play-btn {
+  background-color: var(--accent);
+  color: var(--bg);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.play-btn:hover {
+  background-color: var(--accent-hi);
+}
+
+@media (max-width: 768px) {
+  .player-content {
+    padding: 1rem;
+  }
+
+  .minimized-content {
+    padding: 0.5rem 1rem;
+  }
+}

@@ -1,0 +1,179 @@
+.subscribe-section {
+  width: 100%;
+  padding: 100px 24px;
+  background: #0a0a0a;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  box-sizing: border-box;
+}
+
+.subscribe-inner {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.subscribe-label {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: #4ade80;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.subscribe-heading {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.15;
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
+}
+
+.subscribe-sub {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0 0 40px;
+  line-height: 1.6;
+}
+
+.subscribe-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.subscribe-input-wrap {
+  display: flex;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.subscribe-input-wrap:focus-within {
+  border-color: #4ade80;
+}
+
+.subscribe-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 14px 18px;
+  font-size: 0.95rem;
+  color: #ffffff;
+  font-family: inherit;
+}
+
+.subscribe-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.subscribe-btn {
+  background: #4ade80;
+  color: #000000;
+  border: none;
+  padding: 14px 24px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  letter-spacing: 0.02em;
+  min-width: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.subscribe-btn:hover:not(:disabled) {
+  background: #86efac;
+}
+
+.subscribe-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.subscribe-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.subscribe-error {
+  font-size: 0.82rem;
+  color: #f87171;
+  margin: 0;
+  text-align: center;
+}
+
+.subscribe-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1rem;
+  color: #4ade80;
+  font-weight: 500;
+  padding: 20px 0;
+}
+
+.subscribe-success-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.subscribe-fine {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.2);
+  margin: 16px 0 0;
+}
+
+@media (max-width: 480px) {
+  .subscribe-section {
+    padding: 72px 20px;
+  }
+  .subscribe-input-wrap {
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: visible;
+    background: transparent;
+    border: none;
+    gap: 10px;
+  }
+  .subscribe-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 14px 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .subscribe-btn {
+    border-radius: 8px;
+    width: 100%;
+    padding: 14px;
+  }
+}

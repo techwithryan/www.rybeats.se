@@ -1,0 +1,12 @@
+{
+  "functions": {
+    "api/checkout.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    },
+    "api/session-status.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  }
+}
