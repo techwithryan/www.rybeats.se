@@ -180,10 +180,9 @@
 }
 
 /* Beats grid */
-.beats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--sp-4);
+.beats-list {
+  display: flex;
+  flex-direction: column;
 }
 
 /* State messages */

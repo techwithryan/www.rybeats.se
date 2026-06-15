@@ -7,7 +7,7 @@ import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import Hero from './components/Hero';
 import Checkout from './components/Checkout';
-import BeatCard from './components/BeatCard';
+import BeatRow from './components/BeatRow';
 import SuccessModal from './components/SuccessModal';
 import EmailSubscribe from './components/EmailSubscribe';
 import { loadCart, saveCart, clearCart, mergeCartWithCatalog, formatSEK } from './utils/cartStorage';
@@ -220,11 +220,20 @@ function App() {
                 />
               </div>
 
-              <div className="beats-grid">
-                {filteredBeats.map(beat => (
-                  <BeatCard
+              <div className="beats-list">
+                <div className="beat-list-header">
+                  <span className="col-num">#</span>
+                  <span className="col-thumb"></span>
+                  <span className="col-title">Title</span>
+                  <span className="col-license">License</span>
+                  <span className="col-price">Price</span>
+                  <span className="col-action"></span>
+                </div>
+                {filteredBeats.map((beat, index) => (
+                  <BeatRow
                     key={beat.id}
                     beat={beat}
+                    index={index}
                     onPlay={setNowPlaying}
                     onAddCart={addToCart}
                     onDelete={(id) => setBeats((prevBeats) => prevBeats.filter((b) => b.id !== id))}

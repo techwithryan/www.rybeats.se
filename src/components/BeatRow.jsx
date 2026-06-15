@@ -1,0 +1,165 @@
+import { useState, useEffect } from 'react';
+import './BeatRow.css';
+
+// ── Currency config (mirrors BeatCard) ──────────────────────────────────────
+const CURRENCY_MAP = {
+  SE: { code: 'SEK', locale: 'sv-SE' },
+  NO: { code: 'NOK', locale: 'nb-NO' },
+  DK: { code: 'DKK', locale: 'da-DK' },
+  FI: { code: 'EUR', locale: 'fi-FI' },
+  DE: { code: 'EUR', locale: 'de-DE' },
+  FR: { code: 'EUR', locale: 'fr-FR' },
+  NL: { code: 'EUR', locale: 'nl-NL' },
+  ES: { code: 'EUR', locale: 'es-ES' },
+  IT: { code: 'EUR', locale: 'it-IT' },
+  GB: { code: 'GBP', locale: 'en-GB' },
+};
+
+const EXCHANGE_RATES = {
+  SEK: 1, NOK: 0.97, DKK: 0.68, EUR: 0.088, GBP: 0.075, USD: 0.092,
+};
+
+let cachedCurrency = { code: 'SEK', locale: 'sv-SE' };
+
+async function detectCurrency() {
+  if (cachedCurrency) return cachedCurrency;
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    const data = await res.json();
+    cachedCurrency = CURRENCY_MAP[data.country_code] || { code: 'USD', locale: 'en-US' };
+  } catch {
+    cachedCurrency = { code: 'USD', locale: 'en-US' };
+  }
+  return cachedCurrency;
+}
+
+function formatPrice(amountInSEK, currencyInfo) {
+  const rate = EXCHANGE_RATES[currencyInfo.code] || EXCHANGE_RATES['USD'];
+  const converted = Math.round(amountInSEK * rate);
+  return new Intl.NumberFormat(currencyInfo.locale, {
+    style: 'currency',
+    currency: currencyInfo.code,
+    maximumFractionDigits: 0,
+  }).format(converted);
+}
+
+// ── EQ bars animation (playing indicator) ───────────────────────────────────
+function EqBars() {
+  return (
+    <span className="eq-bars" aria-hidden="true">
+      <span className="eq-bar" />
+      <span className="eq-bar" />
+      <span className="eq-bar" />
+      <span className="eq-bar" />
+    </span>
+  );
+}
+
+// ── BeatRow ──────────────────────────────────────────────────────────────────
+export default function BeatRow({
+  beat,
+  index,
+  onPlay,
+  onAddCart,
+  onDelete,
+  isPlaying,
+  currentBeat,
+  canDelete = false,
+}) {
+  const [currencyInfo, setCurrencyInfo] = useState({ code: 'SEK', locale: 'sv-SE' });
+
+  useEffect(() => {
+    detectCurrency().then(setCurrencyInfo);
+  }, []);
+
+  const isBeatPlaying = isPlaying && currentBeat?.id === beat.id;
+  const price = Number(beat.price || 0);
+
+  const handleRowClick = (e) => {
+    if (e.target.closest('button')) return;
+    isBeatPlaying ? onPlay(null) : onPlay(beat);
+  };
+
+  const handlePlayClick = (e) => {
+    e.stopPropagation();
+    isBeatPlaying ? onPlay(null) : onPlay(beat);
+  };
+
+  return (
+    <div
+      className={`beat-row${isBeatPlaying ? ' beat-row--playing' : ''}`}
+      onClick={handleRowClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && handleRowClick(e)}
+    >
+      {/* ── Col 1: index / play button ── */}
+      <div className="beat-row__play-col">
+        <button
+          className={`beat-row__play-btn${isBeatPlaying ? ' beat-row__play-btn--playing' : ''}`}
+          onClick={handlePlayClick}
+          aria-label={isBeatPlaying ? `Pause ${beat.name}` : `Play ${beat.name}`}
+        >
+          {isBeatPlaying ? (
+            <EqBars />
+          ) : (
+            <span className="beat-row__index">{String(index + 1).padStart(2, '0')}</span>
+          )}
+          <span className="beat-row__play-icon">{isBeatPlaying ? '⏸' : '▶'}</span>
+        </button>
+      </div>
+
+      {/* ── Col 2: thumbnail ── */}
+      <div className="beat-row__thumb-col">
+        <div className="beat-row__thumb">
+          {beat.image_url ? (
+            <img src={beat.image_url} alt={beat.name} />
+          ) : (
+            <span className="beat-row__thumb-placeholder">♩</span>
+          )}
+        </div>
+      </div>
+
+      {/* ── Col 3: title + metadata ── */}
+      <div className="beat-row__meta-col">
+        <span className="beat-row__name">{beat.name}</span>
+        <span className="beat-row__sub">
+          <span className="beat-row__bpm">{beat.bpm} BPM</span>
+          {beat.key && (
+            <span className="beat-row__key">{beat.key}</span>
+          )}
+        </span>
+      </div>
+
+      {/* ── Col 4: license tag (hidden on small mobile) ── */}
+      <div className="beat-row__license-col">
+        <span className="beat-row__license">Commercial</span>
+      </div>
+
+      {/* ── Col 5: price ── */}
+      <div className="beat-row__price-col">
+        <span className="beat-row__price">{formatPrice(price, currencyInfo)}</span>
+      </div>
+
+      {/* ── Col 6: actions ── */}
+      <div className="beat-row__actions-col">
+        <button
+          className="beat-row__cart-btn"
+          onClick={(e) => { e.stopPropagation(); onAddCart(beat); }}
+          aria-label={`Add ${beat.name} to cart`}
+        >
+          Add to Cart
+        </button>
+        {canDelete && (
+          <button
+            className="beat-row__delete-btn"
+            onClick={(e) => { e.stopPropagation(); onDelete(beat.id); }}
+            aria-label={`Delete ${beat.name}`}
+          >
+            🗑
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
