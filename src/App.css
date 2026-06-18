@@ -8,125 +8,6 @@
   min-height: 100vh;
 }
 
-/* ── Music Player (bottom bar) ── */
-.music-player {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(12, 11, 9, 0.94);
-  border-top: 1px solid var(--line);
-  z-index: 1000;
-  backdrop-filter: var(--blur-md);
-}
-
-.player-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--sp-4) var(--sp-6);
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-}
-
-.player-info {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-4);
-}
-
-.player-image {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--r-sm);
-  object-fit: cover;
-}
-
-.player-text { flex: 1; }
-
-.player-text h4 {
-  font-size: var(--text-base);
-  font-weight: 500;
-  color: var(--ink-1);
-}
-
-.player-text p {
-  font-size: var(--text-sm);
-  color: var(--ink-3);
-  margin-top: 2px;
-  line-height: 1.4;
-}
-
-/* Progress */
-.player-progress {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-}
-
-.player-progress span {
-  font-size: var(--text-xs);
-  color: var(--ink-3);
-  min-width: 32px;
-  font-variant-numeric: tabular-nums;
-}
-
-.progress-bar {
-  flex: 1;
-  height: 2px;
-  background: var(--ink-4);
-  border-radius: 2px;
-  cursor: pointer;
-  position: relative;
-}
-
-.progress-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 2px;
-  transition: width 0.1s linear;
-}
-
-/* Controls */
-.player-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--sp-4);
-}
-
-.control-btn,
-.close-btn {
-  background: none;
-  border: none;
-  color: var(--ink-2);
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: var(--sp-2);
-  border-radius: var(--r-sm);
-  transition: color 0.2s ease;
-}
-
-.control-btn:hover:not(:disabled),
-.close-btn:hover { color: var(--ink-1); }
-
-.control-btn:disabled { color: var(--ink-4); cursor: not-allowed; }
-
-.play-btn {
-  background: var(--accent);
-  color: #0c0b09;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  font-size: 0.95rem;
-  flex-shrink: 0;
-}
-
-.play-btn:hover {
-  background: var(--accent-hi);
-  opacity: 1;
-}
-
 /* ── Hero ── */
 .hero { position: relative; }
 
@@ -146,20 +27,7 @@
   margin-bottom: var(--sp-5);
 }
 
-/* Toolbar */
-.store-toolbar {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  gap: var(--sp-3);
-  margin-bottom: var(--sp-5);
-  padding: var(--sp-4);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  background: rgba(21, 19, 16, 0.8);
-  backdrop-filter: var(--blur-sm);
-}
-
-/* Cart CTA — accent, but contained */
+/* Cart CTA */
 .cart-open-btn {
   padding: 0.65rem var(--sp-5);
   background: var(--accent-bg);
@@ -179,7 +47,7 @@
   opacity: 1;
 }
 
-/* Beats grid */
+/* Beats list */
 .beats-list {
   display: flex;
   flex-direction: column;
@@ -382,7 +250,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Checkout button — primary, one on this surface */
 .mini-cart-footer button {
   width: 100%;
   background: var(--accent);
@@ -401,7 +268,6 @@
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
-  .store-toolbar { grid-template-columns: 1fr; }
   .store-heading-row { flex-direction: column; align-items: flex-start; }
 
   .mini-cart-drawer {
@@ -416,9 +282,5 @@
 
 @media (max-width: 768px) {
   section { padding: var(--sp-5) var(--sp-4); }
-
-  .player-content { padding: var(--sp-3) var(--sp-4); }
-  .player-image { width: 38px; height: 38px; }
-
   h2 { font-size: var(--text-md); }
 }

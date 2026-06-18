@@ -10,6 +10,7 @@ import Checkout from './components/Checkout';
 import BeatRow from './components/BeatRow';
 import SuccessModal from './components/SuccessModal';
 import EmailSubscribe from './components/EmailSubscribe';
+import FilterBar, { BPM_RANGES, beatMatchesGenre } from './components/FilterBar';
 import { loadCart, saveCart, clearCart, mergeCartWithCatalog, formatSEK } from './utils/cartStorage';
 import { applyTheme, loadTheme } from './utils/theme';
 
@@ -24,8 +25,27 @@ function App() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [isPlayerMinimized, setIsPlayerMinimized] = useState(false);
   const [successSessionId, setSuccessSessionId] = useState(null);
+  const [beatsLoading, setBeatsLoading] = useState(true);
+  const [beatsError, setBeatsError] = useState('');
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
 
-  // Check for Stripe redirect query parameters
+  // ── Filter state ──────────────────────────────────────────────────────────
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+  const [activeGenre, setActiveGenre] = useState('All');
+  const [bpmRange, setBpmRange] = useState(BPM_RANGES[0]);
+  const [activeKey, setActiveKey] = useState('All keys');
+
+  // ── Page ──────────────────────────────────────────────────────────────────
+  const [currentPage, setCurrentPage] = useState(() => {
+    return localStorage.getItem('rybeats-page') || 'home';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('rybeats-page', currentPage);
+  }, [currentPage]);
+
+  // ── Stripe redirect ───────────────────────────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const paymentStatus = params.get('payment');
@@ -35,8 +55,6 @@ function App() {
       setSuccessSessionId(sessionId);
       setCart([]);
       clearCart();
-
-      // Clean up URL query parameters so refreshing doesn't show modal again
       const newUrl = window.location.origin + window.location.pathname;
       window.history.replaceState({}, document.title, newUrl);
     } else if (paymentStatus === 'cancel') {
@@ -45,40 +63,26 @@ function App() {
       window.history.replaceState({}, document.title, newUrl);
     }
   }, []);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('newest');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [beatsLoading, setBeatsLoading] = useState(true);
-  const [beatsError, setBeatsError] = useState('');
-  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
 
-  const [currentPage, setCurrentPage] = useState(() => {
-    return localStorage.getItem('rybeats-page') || 'home';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('rybeats-page', currentPage);
-  }, [currentPage]);
-
-  useEffect(() => {
-    applyTheme(loadTheme());
-  }, []);
-
-  useEffect(() => {
-    saveCart(cart);
-  }, [cart]);
+  useEffect(() => { applyTheme(loadTheme()); }, []);
+  useEffect(() => { saveCart(cart); }, [cart]);
 
   useEffect(() => {
     if (beats.length === 0) return;
     setCart((prev) => mergeCartWithCatalog(prev, beats));
   }, [beats]);
 
+  // ── Body class for music player (expanded vs minimized) ───────────────────
   useEffect(() => {
     document.body.classList.toggle('has-music-player', Boolean(nowPlaying));
-    return () => document.body.classList.remove('has-music-player');
-  }, [nowPlaying]);
+    document.body.classList.toggle('player-minimized', Boolean(nowPlaying) && isPlayerMinimized);
+    return () => {
+      document.body.classList.remove('has-music-player');
+      document.body.classList.remove('player-minimized');
+    };
+  }, [nowPlaying, isPlayerMinimized]);
 
-  // Check authentication ONCE on mount
+  // ── Auth ──────────────────────────────────────────────────────────────────
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -94,20 +98,15 @@ function App() {
 
     checkAuth();
 
-    // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user || null);
-      }
+      (event, session) => { setUser(session?.user || null); }
     );
 
     return () => authListener?.subscription?.unsubscribe();
   }, []);
 
-  // Fetch beats
-  useEffect(() => {
-    fetchBeats();
-  }, []);
+  // ── Fetch beats ───────────────────────────────────────────────────────────
+  useEffect(() => { fetchBeats(); }, []);
 
   async function fetchBeats() {
     setBeatsLoading(true);
@@ -126,12 +125,11 @@ function App() {
     setBeatsLoading(false);
   }
 
+  // ── Cart ──────────────────────────────────────────────────────────────────
   function addToCart(beat) {
     setCart((prevCart) => {
       const cartItemId = String(beat.id);
-      if (prevCart.some((item) => item.cart_item_id === cartItemId)) {
-        return prevCart;
-      }
+      if (prevCart.some((item) => item.cart_item_id === cartItemId)) return prevCart;
       return [
         ...prevCart,
         {
@@ -139,7 +137,7 @@ function App() {
           cart_item_id: cartItemId,
           license_type: 'commercial',
           price: Number(beat.price || 0),
-        }
+        },
       ];
     });
     setCartDrawerOpen(true);
@@ -149,26 +147,39 @@ function App() {
     setCart((prevCart) => prevCart.filter((item) => item.cart_item_id !== cartItemId));
   }
 
+  // ── Filter + sort ─────────────────────────────────────────────────────────
   const filteredBeats = beats
     .filter((beat) => {
+      // Text search
       const query = searchQuery.trim().toLowerCase();
-      const matchesQuery =
+      const matchesSearch =
         query.length === 0 ||
         beat.name?.toLowerCase().includes(query) ||
         beat.key?.toLowerCase().includes(query) ||
         String(beat.bpm || '').includes(query);
-      const matchesPrice =
-        maxPrice === '' || Number(beat.price || 0) <= Number(maxPrice);
-      return matchesQuery && matchesPrice;
+
+      // Genre/mood
+      const matchesGenre = beatMatchesGenre(beat, activeGenre);
+
+      // BPM range
+      const bpm = Number(beat.bpm || 0);
+      const matchesBpm = bpm >= bpmRange.min && bpm <= bpmRange.max;
+
+      // Key
+      const matchesKey =
+        activeKey === 'All keys' || beat.key === activeKey;
+
+      return matchesSearch && matchesGenre && matchesBpm && matchesKey;
     })
     .sort((a, b) => {
-      if (sortBy === 'price-low') return Number(a.price || 0) - Number(b.price || 0);
+      if (sortBy === 'price-low')  return Number(a.price || 0) - Number(b.price || 0);
       if (sortBy === 'price-high') return Number(b.price || 0) - Number(a.price || 0);
-      if (sortBy === 'bpm-low') return Number(a.bpm || 0) - Number(b.bpm || 0);
-      if (sortBy === 'bpm-high') return Number(b.bpm || 0) - Number(a.bpm || 0);
-      return Number(b.id || 0) - Number(a.id || 0);
+      if (sortBy === 'bpm-low')    return Number(a.bpm || 0) - Number(b.bpm || 0);
+      if (sortBy === 'bpm-high')   return Number(b.bpm || 0) - Number(a.bpm || 0);
+      return Number(b.id || 0) - Number(a.id || 0); // newest
     });
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Navbar currentPage={currentPage} onNavigate={setCurrentPage} />
@@ -185,10 +196,7 @@ function App() {
                 <h2>Available Beats</h2>
                 <button
                   onClick={() => {
-                    if (cart.length === 0) {
-                      alert('Cart is empty!');
-                      return;
-                    }
+                    if (cart.length === 0) { alert('Cart is empty!'); return; }
                     setCartDrawerOpen((prev) => !prev);
                   }}
                   className="cart-open-btn"
@@ -197,29 +205,24 @@ function App() {
                 </button>
               </div>
 
-              <div className="store-toolbar">
-                <input
-                  type="text"
-                  placeholder="Search beat name, key or BPM..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                  <option value="newest">Newest</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="bpm-low">BPM: Low to High</option>
-                  <option value="bpm-high">BPM: High to Low</option>
-                </select>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="Max price ($)"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                />
-              </div>
+              {/* ── FilterBar ── */}
+              <FilterBar
+                beats={beats}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                activeGenre={activeGenre}
+                setActiveGenre={setActiveGenre}
+                bpmRange={bpmRange}
+                setBpmRange={setBpmRange}
+                activeKey={activeKey}
+                setActiveKey={setActiveKey}
+                resultCount={filteredBeats.length}
+                totalCount={beats.length}
+              />
 
+              {/* ── Beat list ── */}
               <div className="beats-list">
                 <div className="beat-list-header">
                   <span className="col-num">#</span>
@@ -236,14 +239,15 @@ function App() {
                     index={index}
                     onPlay={setNowPlaying}
                     onAddCart={addToCart}
-                    onDelete={(id) => setBeats((prevBeats) => prevBeats.filter((b) => b.id !== id))}
+                    onDelete={(id) => setBeats((prev) => prev.filter((b) => b.id !== id))}
                     isPlaying={nowPlaying?.id === beat.id}
                     currentBeat={nowPlaying}
                     canDelete={!authLoading && Boolean(user)}
                   />
                 ))}
               </div>
-              {beatsLoading && <p className="store-loading-state">Loading beats...</p>}
+
+              {beatsLoading && <p className="store-loading-state">Loading beats…</p>}
               {beatsError && (
                 <div className="store-error-state">
                   <p>{beatsError}</p>
@@ -251,7 +255,7 @@ function App() {
                 </div>
               )}
               {!beatsLoading && !beatsError && filteredBeats.length === 0 && (
-                <p className="store-empty-state">No beats found for this filter combo.</p>
+                <p className="store-empty-state">No beats match those filters.</p>
               )}
             </section>
           </>
@@ -263,10 +267,8 @@ function App() {
             <p className="content-section-text">
               Welcome to RyBeats. The source of premium hip hop, trap & pop beats.
               Feel free to send me a straight DM with any type of special requests.
-
-              Much welcome to join in on the
-              <a href='https://discord.gg/EfbQFF4qNc'> discord server </a>
-
+              Much welcome to join in on the{' '}
+              <a href="https://discord.gg/EfbQFF4qNc">discord server</a>.
               Godbless, Ryan.
             </p>
           </section>
@@ -279,23 +281,9 @@ function App() {
               Follow RyBeats for new releases, or reach out for collaborations and custom production.
             </p>
             <div className="media-links">
-              <a
-                href="https://open.spotify.com/artist/5tS4sV7dbDsRzUAWEefXkS"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Spotify
-              </a>
-              <a
-                href="https://www.youtube.com/@rybeatsofficial"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                YouTube
-              </a>
-              <a href="https://discord.gg/EfbQFF4qNc" target="_blank" rel="noopener noreferrer">
-                Discord
-              </a>
+              <a href="https://open.spotify.com/artist/5tS4sV7dbDsRzUAWEefXkS" target="_blank" rel="noopener noreferrer">Spotify</a>
+              <a href="https://www.youtube.com/@rybeatsofficial" target="_blank" rel="noopener noreferrer">YouTube</a>
+              <a href="https://discord.gg/EfbQFF4qNc" target="_blank" rel="noopener noreferrer">Discord</a>
               <a href="mailto:ryan.cornelio@gmail.com">ryan.cornelio@gmail.com</a>
             </div>
           </section>
@@ -367,10 +355,7 @@ function App() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowCheckout(true);
-                    setCartDrawerOpen(false);
-                  }}
+                  onClick={() => { setShowCheckout(true); setCartDrawerOpen(false); }}
                 >
                   Checkout
                 </button>
@@ -381,7 +366,6 @@ function App() {
       )}
 
       <EmailSubscribe />
-
       <Footer />
     </div>
   );

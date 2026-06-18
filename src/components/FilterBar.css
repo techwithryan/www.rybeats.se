@@ -1,0 +1,287 @@
+/* FilterBar.css ─ uses design tokens from index.css */
+
+.filterbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+
+/* ── Row 1: search + sort ───────────────────────────────────────────────── */
+.filterbar__top {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Search */
+.filterbar__search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 180px;
+}
+
+.filterbar__search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.filterbar__search {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--ink-1);
+  padding: 0.55rem 2.4rem 0.55rem 2.2rem;
+  border-radius: var(--r-md);
+  font-size: var(--text-sm);
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.filterbar__search::placeholder {
+  color: var(--ink-3);
+}
+
+.filterbar__search:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+.filterbar__search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--ink-3);
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--r-sm);
+  line-height: 1;
+}
+
+.filterbar__search-clear:hover {
+  color: var(--ink-1);
+}
+
+/* Sort buttons */
+.filterbar__sort {
+  display: flex;
+  gap: var(--sp-1);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.filterbar__sort-btn {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-3);
+  padding: 0.45rem var(--sp-3);
+  border-radius: var(--r-md);
+  font-size: var(--text-xs);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.filterbar__sort-btn:hover {
+  color: var(--ink-1);
+  border-color: var(--ink-3);
+}
+
+.filterbar__sort-btn--active {
+  background: var(--accent-bg);
+  border-color: rgba(212, 168, 83, 0.35);
+  color: var(--accent);
+}
+
+/* ── Row 2: pills ────────────────────────────────────────────────────────── */
+.filterbar__tags-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.filterbar__genre-pills {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.filterbar__secondary {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filterbar__bpm {
+  display: flex;
+  gap: var(--sp-1);
+  flex-wrap: wrap;
+}
+
+/* Shared pill style */
+.filterbar__pill {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  padding: 0.35rem var(--sp-3);
+  border-radius: 999px;
+  font-size: var(--text-sm);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.filterbar__pill:hover {
+  border-color: var(--ink-3);
+  color: var(--ink-1);
+}
+
+.filterbar__pill--active {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.filterbar__pill--sm {
+  padding: 0.28rem var(--sp-2);
+  font-size: var(--text-xs);
+}
+
+/* ── Key selector ────────────────────────────────────────────────────────── */
+.filterbar__key-wrap {
+  position: relative;
+}
+
+.filterbar__key-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  padding: 0.35rem var(--sp-3);
+  border-radius: var(--r-md);
+  font-size: var(--text-sm);
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.filterbar__key-btn:hover {
+  border-color: var(--ink-3);
+  color: var(--ink-1);
+}
+
+.filterbar__key-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  z-index: 200;
+  min-width: 130px;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  padding: var(--sp-1);
+}
+
+.filterbar__key-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--ink-2);
+  padding: 0.45rem var(--sp-3);
+  border-radius: var(--r-sm);
+  font-size: var(--text-sm);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.filterbar__key-option:hover {
+  background: var(--surface-2);
+  color: var(--ink-1);
+}
+
+.filterbar__key-option--active {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* ── Row 3: meta ─────────────────────────────────────────────────────────── */
+.filterbar__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--line);
+}
+
+.filterbar__count {
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.filterbar__clear {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: var(--text-xs);
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.filterbar__clear:hover {
+  color: var(--accent-hi);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .filterbar {
+    padding: var(--sp-3) var(--sp-4);
+  }
+
+  .filterbar__sort {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .filterbar__sort-btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .filterbar__secondary {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
