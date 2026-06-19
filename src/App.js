@@ -11,10 +11,39 @@ import BeatRow from './components/BeatRow';
 import SuccessModal from './components/SuccessModal';
 import EmailSubscribe from './components/EmailSubscribe';
 import FilterBar, { BPM_RANGES, beatMatchesGenre } from './components/FilterBar';
+import LicenseModal from './components/LicenseModal';
 import { loadCart, saveCart, clearCart, mergeCartWithCatalog, formatSEK } from './utils/cartStorage';
+import { useLikes } from './utils/likesStorage';
 import { applyTheme, loadTheme } from './utils/theme';
 
 import './App.css';
+
+// ── Currency detection (shared across components) ─────────────────────────────
+const CURRENCY_MAP = {
+  SE: { code: 'SEK', locale: 'sv-SE' },
+  NO: { code: 'NOK', locale: 'nb-NO' },
+  DK: { code: 'DKK', locale: 'da-DK' },
+  FI: { code: 'EUR', locale: 'fi-FI' },
+  DE: { code: 'EUR', locale: 'de-DE' },
+  FR: { code: 'EUR', locale: 'fr-FR' },
+  NL: { code: 'EUR', locale: 'nl-NL' },
+  ES: { code: 'EUR', locale: 'es-ES' },
+  IT: { code: 'EUR', locale: 'it-IT' },
+  GB: { code: 'GBP', locale: 'en-GB' },
+};
+
+let _cachedCurrency = null;
+async function detectCurrency() {
+  if (_cachedCurrency) return _cachedCurrency;
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    const data = await res.json();
+    _cachedCurrency = CURRENCY_MAP[data.country_code] || { code: 'USD', locale: 'en-US' };
+  } catch {
+    _cachedCurrency = { code: 'SEK', locale: 'sv-SE' };
+  }
+  return _cachedCurrency;
+}
 
 function App() {
   const [beats, setBeats] = useState([]);
@@ -28,6 +57,8 @@ function App() {
   const [beatsLoading, setBeatsLoading] = useState(true);
   const [beatsError, setBeatsError] = useState('');
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
+  const [licenseModalBeat, setLicenseModalBeat] = useState(null); // beat awaiting license pick
+  const [currencyInfo, setCurrencyInfo] = useState({ code: 'SEK', locale: 'sv-SE' });
 
   // ── Filter state ──────────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,6 +66,7 @@ function App() {
   const [activeGenre, setActiveGenre] = useState('All');
   const [bpmRange, setBpmRange] = useState(BPM_RANGES[0]);
   const [activeKey, setActiveKey] = useState('All keys');
+  const [showLikedOnly, setShowLikedOnly] = useState(false);
 
   // ── Page ──────────────────────────────────────────────────────────────────
   const [currentPage, setCurrentPage] = useState(() => {
@@ -66,6 +98,7 @@ function App() {
 
   useEffect(() => { applyTheme(loadTheme()); }, []);
   useEffect(() => { saveCart(cart); }, [cart]);
+  useEffect(() => { detectCurrency().then(setCurrencyInfo); }, []);
 
   useEffect(() => {
     if (beats.length === 0) return;
@@ -126,17 +159,23 @@ function App() {
   }
 
   // ── Cart ──────────────────────────────────────────────────────────────────
-  function addToCart(beat) {
+  // onAddCart from BeatRow now opens the license picker first
+  function openLicensePicker(beat) {
+    setLicenseModalBeat(beat);
+  }
+
+  function addToCart(beatWithLicense) {
     setCart((prevCart) => {
-      const cartItemId = String(beat.id);
+      // Key = beatId + licenseId so same beat can't be added twice with same license
+      const cartItemId = `${beatWithLicense.id}-${beatWithLicense.license_id || 'basic'}`;
       if (prevCart.some((item) => item.cart_item_id === cartItemId)) return prevCart;
       return [
         ...prevCart,
         {
-          ...beat,
+          ...beatWithLicense,
           cart_item_id: cartItemId,
-          license_type: 'commercial',
-          price: Number(beat.price || 0),
+          license_type: beatWithLicense.license_id || 'basic',
+          price: Number(beatWithLicense.price || 0),
         },
       ];
     });
@@ -147,9 +186,14 @@ function App() {
     setCart((prevCart) => prevCart.filter((item) => item.cart_item_id !== cartItemId));
   }
 
+  const likes = useLikes();
+
   // ── Filter + sort ─────────────────────────────────────────────────────────
   const filteredBeats = beats
     .filter((beat) => {
+      // Liked only
+      if (showLikedOnly && !likes.has(String(beat.id))) return false;
+
       // Text search
       const query = searchQuery.trim().toLowerCase();
       const matchesSearch =
@@ -220,6 +264,8 @@ function App() {
                 setActiveKey={setActiveKey}
                 resultCount={filteredBeats.length}
                 totalCount={beats.length}
+                showLikedOnly={showLikedOnly}
+                setShowLikedOnly={setShowLikedOnly}
               />
 
               {/* ── Beat list ── */}
@@ -238,7 +284,7 @@ function App() {
                     beat={beat}
                     index={index}
                     onPlay={setNowPlaying}
-                    onAddCart={addToCart}
+                    onAddCart={openLicensePicker}
                     onDelete={(id) => setBeats((prev) => prev.filter((b) => b.id !== id))}
                     isPlaying={nowPlaying?.id === beat.id}
                     currentBeat={nowPlaying}
@@ -291,6 +337,15 @@ function App() {
 
         {currentPage === 'admin' && <ProtectedRoute />}
       </div>
+
+      {licenseModalBeat && (
+        <LicenseModal
+          beat={licenseModalBeat}
+          onClose={() => setLicenseModalBeat(null)}
+          onAddCart={addToCart}
+          currencyInfo={currencyInfo}
+        />
+      )}
 
       <MusicPlayer
         beat={nowPlaying}

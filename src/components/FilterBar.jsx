@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useLikes } from '../utils/likesStorage';
 import './FilterBar.css';
 
 // ── BPM ranges ───────────────────────────────────────────────────────────────
@@ -83,21 +84,27 @@ export default function FilterBar({
   setActiveKey,
   resultCount,
   totalCount,
+  showLikedOnly,
+  setShowLikedOnly,
 }) {
   const [showKeyDropdown, setShowKeyDropdown] = useState(false);
   const keys = useUniqueKeys(beats);
+  const likes = useLikes();
+  const likedCount = likes.size;
 
   const hasActiveFilters =
     searchQuery.trim() !== '' ||
     activeGenre !== 'All' ||
     bpmRange.label !== 'All BPM' ||
-    activeKey !== 'All keys';
+    activeKey !== 'All keys' ||
+    showLikedOnly;
 
   const clearAll = () => {
     setSearchQuery('');
     setActiveGenre('All');
     setBpmRange(BPM_RANGES[0]);
     setActiveKey('All keys');
+    setShowLikedOnly(false);
   };
 
   return (
@@ -154,6 +161,22 @@ export default function FilterBar({
               {tag}
             </button>
           ))}
+
+          {/* Liked filter */}
+          <button
+            className={`filterbar__pill filterbar__pill--liked${showLikedOnly ? ' filterbar__pill--active' : ''}`}
+            onClick={() => setShowLikedOnly(!showLikedOnly)}
+            title="Show liked beats"
+          >
+            <svg viewBox="0 0 24 24" width="13" height="13"
+              fill={showLikedOnly ? 'currentColor' : 'none'}
+              stroke="currentColor" strokeWidth="2.2"
+              style={{ flexShrink: 0 }}
+            >
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+            Liked{likedCount > 0 && ` (${likedCount})`}
+          </button>
         </div>
 
         <div className="filterbar__secondary">

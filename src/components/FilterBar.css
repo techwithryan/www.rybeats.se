@@ -166,7 +166,25 @@
   font-size: var(--text-xs);
 }
 
-/* ── Key selector ────────────────────────────────────────────────────────── */
+/* Liked pill variant */
+.filterbar__pill--liked {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink-3);
+  border-color: var(--line);
+}
+
+.filterbar__pill--liked.filterbar__pill--active {
+  color: #e05c7a;
+  border-color: #e05c7a;
+  background: rgba(224, 92, 122, 0.1);
+}
+
+.filterbar__pill--liked:hover {
+  color: #e05c7a;
+  border-color: rgba(224, 92, 122, 0.5);
+}
 .filterbar__key-wrap {
   position: relative;
 }

@@ -1,15 +1,15 @@
-/* BeatRow.css — list-style beat layout */
+/* BeatRow.css */
 
-/* ── Row container ─────────────────────────────────────────────────────────── */
+/* ── Row ─────────────────────────────────────────────────────────────────────── */
 .beat-row {
   display: grid;
   grid-template-columns:
-    44px          /* play col */
+    44px          /* play */
     48px          /* thumb */
     1fr           /* meta */
     auto          /* license */
-    90px          /* price */
-    auto;         /* actions */
+    100px         /* price */
+    200px;        /* actions — fixed width so heart+btn+delete never squeeze */
   align-items: center;
   gap: var(--sp-3);
   padding: var(--sp-3) var(--sp-4);
@@ -18,321 +18,198 @@
   transition: background 0.15s ease;
   border-radius: var(--r-sm);
 }
-
-.beat-row:first-child {
-  border-top: 1px solid var(--line);
-}
-
-.beat-row:hover {
-  background: var(--surface-2);
-}
-
+.beat-row:first-child { border-top: 1px solid var(--line); }
+.beat-row:hover { background: var(--surface-2); }
 .beat-row--playing {
   background: rgba(74, 158, 106, 0.06);
   border-color: rgba(74, 158, 106, 0.2);
 }
+.beat-row--playing:hover { background: rgba(74, 158, 106, 0.09); }
 
-.beat-row--playing:hover {
-  background: rgba(74, 158, 106, 0.09);
-}
-
-/* ── Play col ───────────────────────────────────────────────────────────────── */
-.beat-row__play-col {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* ── Play col ────────────────────────────────────────────────────────────────── */
+.beat-row__play-col { display: flex; align-items: center; justify-content: center; }
 
 .beat-row__play-btn {
   position: relative;
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 36px; height: 36px;
+  border: none; background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
   border-radius: 50%;
   transition: background 0.15s ease;
   flex-shrink: 0;
 }
+.beat-row__play-btn:hover { background: var(--accent-bg); }
 
-.beat-row__play-btn:hover {
-  background: var(--accent-bg);
-}
-
-/* The number shown when not playing */
 .beat-row__index {
-  font-size: var(--text-sm);
-  color: var(--ink-3);
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
+  font-size: var(--text-sm); color: var(--ink-3);
+  font-variant-numeric: tabular-nums; font-weight: 500;
   transition: opacity 0.15s ease;
 }
-
-/* The play/pause icon — hidden until hover or playing */
 .beat-row__play-icon {
-  position: absolute;
-  font-size: 0.75rem;
-  color: var(--accent);
-  opacity: 0;
-  transition: opacity 0.15s ease;
+  position: absolute; font-size: 0.75rem;
+  color: var(--accent); opacity: 0; transition: opacity 0.15s ease;
 }
+.beat-row:hover .beat-row__index         { opacity: 0; }
+.beat-row:hover .beat-row__play-icon     { opacity: 1; }
+.beat-row__play-btn--playing .beat-row__index    { opacity: 0; }
+.beat-row__play-btn--playing .beat-row__play-icon { opacity: 1; color: var(--success); }
 
-/* On row hover: hide the number, show the icon */
-.beat-row:hover .beat-row__index { opacity: 0; }
-.beat-row:hover .beat-row__play-icon { opacity: 1; }
-
-/* While playing: always show the pause icon */
-.beat-row__play-btn--playing .beat-row__index { opacity: 0; }
-.beat-row__play-btn--playing .beat-row__play-icon {
-  opacity: 1;
-  color: var(--success);
-}
-
-/* ── EQ bars (playing indicator) ───────────────────────────────────────────── */
-.eq-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 14px;
-  position: absolute;
-}
-
-.eq-bar {
-  width: 3px;
-  background: var(--success);
-  border-radius: 2px;
-  animation: eq 0.8s ease-in-out infinite;
-}
-
+/* ── EQ bars ─────────────────────────────────────────────────────────────────── */
+.eq-bars { display: flex; align-items: flex-end; gap: 2px; height: 14px; position: absolute; }
+.eq-bar  { width: 3px; background: var(--success); border-radius: 2px; animation: eq 0.8s ease-in-out infinite; }
 .eq-bar:nth-child(1) { height: 60%;  animation-delay: 0s; }
 .eq-bar:nth-child(2) { height: 100%; animation-delay: 0.2s; }
 .eq-bar:nth-child(3) { height: 45%;  animation-delay: 0.1s; }
 .eq-bar:nth-child(4) { height: 80%;  animation-delay: 0.3s; }
+@keyframes eq { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.25); } }
 
-@keyframes eq {
-  0%, 100% { transform: scaleY(1); }
-  50%       { transform: scaleY(0.25); }
-}
-
-/* When EQ bars are showing, hide the pause icon behind them */
-.beat-row__play-btn--playing .beat-row__play-icon {
-  opacity: 0;
-}
-
-/* On hover of a playing row: swap EQ bars for pause icon */
-.beat-row:hover .beat-row__play-btn--playing .eq-bars { display: none; }
+.beat-row__play-btn--playing .beat-row__play-icon          { opacity: 0; }
+.beat-row:hover .beat-row__play-btn--playing .eq-bars       { display: none; }
 .beat-row:hover .beat-row__play-btn--playing .beat-row__play-icon { opacity: 1; }
 
-/* ── Thumbnail ──────────────────────────────────────────────────────────────── */
-.beat-row__thumb-col {
-  flex-shrink: 0;
-}
-
+/* ── Thumbnail ───────────────────────────────────────────────────────────────── */
+.beat-row__thumb-col { flex-shrink: 0; }
 .beat-row__thumb {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--r-sm);
-  overflow: hidden;
-  background: var(--surface-2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 44px; height: 44px; border-radius: var(--r-sm); overflow: hidden;
+  background: var(--surface-2); display: flex; align-items: center; justify-content: center;
 }
+.beat-row__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.beat-row__thumb-placeholder { font-size: 1.2rem; color: var(--ink-3); }
 
-.beat-row__thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.beat-row__thumb-placeholder {
-  font-size: 1.2rem;
-  color: var(--ink-3);
-}
-
-/* ── Meta ───────────────────────────────────────────────────────────────────── */
-.beat-row__meta-col {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
+/* ── Meta ────────────────────────────────────────────────────────────────────── */
+.beat-row__meta-col { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .beat-row__name {
-  font-size: var(--text-base);
-  font-weight: 600;
-  color: var(--ink-1);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: -0.01em;
+  font-size: var(--text-base); font-weight: 600; color: var(--ink-1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em;
 }
-
-.beat-row--playing .beat-row__name {
-  color: var(--success);
-}
-
-.beat-row__sub {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-}
-
-.beat-row__bpm {
-  font-size: var(--text-sm);
-  color: var(--ink-3);
-}
-
+.beat-row--playing .beat-row__name { color: var(--success); }
+.beat-row__sub { display: flex; align-items: center; gap: var(--sp-2); }
+.beat-row__bpm { font-size: var(--text-sm); color: var(--ink-3); }
 .beat-row__key {
-  font-size: var(--text-xs);
-  color: var(--accent);
-  background: var(--accent-bg);
-  padding: 2px var(--sp-2);
-  border-radius: var(--r-sm);
-  font-weight: 500;
-  letter-spacing: 0.04em;
+  font-size: var(--text-xs); color: var(--accent); background: var(--accent-bg);
+  padding: 2px var(--sp-2); border-radius: var(--r-sm); font-weight: 500; letter-spacing: 0.04em;
 }
 
-/* ── License ────────────────────────────────────────────────────────────────── */
-.beat-row__license-col {
-  display: flex;
-  justify-content: center;
-}
-
+/* ── License col ─────────────────────────────────────────────────────────────── */
+.beat-row__license-col { display: flex; justify-content: center; }
 .beat-row__license {
-  font-size: var(--text-xs);
-  color: var(--ink-3);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
+  font-size: var(--text-xs); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap;
 }
 
-/* ── Price ──────────────────────────────────────────────────────────────────── */
+/* ── Price col ───────────────────────────────────────────────────────────────── */
 .beat-row__price-col {
-  text-align: right;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 1px;
 }
-
+.beat-row__price-from { font-size: var(--text-xs); color: var(--ink-3); line-height: 1; }
 .beat-row__price {
-  font-size: var(--text-base);
-  font-weight: 700;
-  color: var(--ink-1);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
+  font-size: var(--text-base); font-weight: 700; color: var(--ink-1);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em; white-space: nowrap;
+}
+/* FREE badge */
+.beat-row__price-free {
+  font-size: var(--text-sm); font-weight: 800;
+  color: var(--success);
+  letter-spacing: 0.08em;
 }
 
-/* ── Actions ────────────────────────────────────────────────────────────────── */
+/* ── Actions col ─────────────────────────────────────────────────────────────── */
 .beat-row__actions-col {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  justify-content: flex-end;
+  gap: var(--sp-3);        /* more breathing room between heart and button */
+  padding-right: var(--sp-1);
+}
+
+/* Heart / like button */
+.beat-row__like-btn {
+  background: none; border: none;
+  color: var(--ink-4);
+  cursor: pointer;
+  padding: 7px;
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  /* hidden by default, visible on hover OR when active */
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s, color 0.15s, transform 0.15s;
 }
+.beat-row:hover .beat-row__like-btn { opacity: 1; }
+.beat-row__like-btn--active          { opacity: 1 !important; color: #e05c7a; }
+.beat-row__like-btn:hover            { color: #e05c7a; transform: scale(1.15); }
 
-.beat-row:hover .beat-row__actions-col {
-  opacity: 1;
+@keyframes like-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
 }
+.beat-row__like-btn--active svg { animation: like-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
+/* Add to Cart / Download button */
 .beat-row__cart-btn {
   padding: 0.45rem var(--sp-4);
   background: var(--accent);
   color: #0c0b09;
-  border: none;
-  border-radius: var(--r-md);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
+  border: none; border-radius: var(--r-md);
+  font-size: var(--text-sm); font-weight: 600;
+  cursor: pointer; white-space: nowrap;
   transition: background 0.15s ease;
   letter-spacing: 0.02em;
+  /* hidden until hover */
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
 }
+.beat-row:hover .beat-row__cart-btn { opacity: 1; }
+.beat-row__cart-btn:hover { background: var(--accent-hi); }
 
-.beat-row__cart-btn:hover {
-  background: var(--accent-hi);
-}
-
+/* Delete button */
 .beat-row__delete-btn {
   padding: 0.45rem var(--sp-3);
   background: transparent;
   border: 1px solid rgba(181, 90, 90, 0.25);
-  color: var(--danger);
-  border-radius: var(--r-md);
-  font-size: var(--text-sm);
-  cursor: pointer;
+  color: var(--danger); border-radius: var(--r-md);
+  font-size: var(--text-sm); cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
 }
+.beat-row__delete-btn:hover { background: rgba(181, 90, 90, 0.1); border-color: var(--danger); }
 
-.beat-row__delete-btn:hover {
-  background: rgba(181, 90, 90, 0.1);
-  border-color: var(--danger);
-}
-
-/* ── Column header row ──────────────────────────────────────────────────────── */
+/* ── Header row ──────────────────────────────────────────────────────────────── */
 .beat-list-header {
   display: grid;
-  grid-template-columns:
-    44px
-    48px
-    1fr
-    auto
-    90px
-    auto;
+  grid-template-columns: 44px 48px 1fr auto 100px 200px;
   align-items: center;
   gap: var(--sp-3);
   padding: var(--sp-2) var(--sp-4) var(--sp-3);
   border-bottom: 1px solid var(--line);
-  margin-bottom: 0;
 }
-
 .beat-list-header span {
-  font-size: var(--text-xs);
-  color: var(--ink-3);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  font-weight: 500;
+  font-size: var(--text-xs); color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 0.07em; font-weight: 500;
 }
-
-.beat-list-header .col-num    { text-align: center; }
-.beat-list-header .col-thumb  { /* spacer */ }
-.beat-list-header .col-title  { /* left */ }
+.beat-list-header .col-num     { text-align: center; }
 .beat-list-header .col-license { text-align: center; }
-.beat-list-header .col-price  { text-align: right; }
-.beat-list-header .col-action { /* spacer */ }
+.beat-list-header .col-price   { text-align: right; }
 
-/* ── Mobile ─────────────────────────────────────────────────────────────────── */
-@media (max-width: 640px) {
+/* ── Mobile ──────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
   .beat-row {
-    grid-template-columns:
-      36px   /* play */
-      40px   /* thumb */
-      1fr    /* meta */
-      80px   /* price */
-      auto;  /* actions */
+    grid-template-columns: 36px 40px 1fr 90px auto;
     gap: var(--sp-2);
     padding: var(--sp-3);
   }
-
-  /* Hide license col on mobile */
   .beat-row__license-col { display: none; }
-
   .beat-list-header {
-    grid-template-columns: 36px 40px 1fr 80px auto;
+    grid-template-columns: 36px 40px 1fr 90px auto;
   }
   .beat-list-header .col-license { display: none; }
 
-  .beat-row__actions-col { opacity: 1; }
+  /* On mobile always show actions */
+  .beat-row__cart-btn,
+  .beat-row__like-btn { opacity: 1; }
 
-  .beat-row__cart-btn {
-    padding: 0.4rem var(--sp-3);
-    font-size: var(--text-xs);
-  }
-
-  .beat-row__thumb {
-    width: 40px;
-    height: 40px;
-  }
+  .beat-row__cart-btn { padding: 0.4rem var(--sp-3); font-size: var(--text-xs); }
+  .beat-row__thumb    { width: 40px; height: 40px; }
+  .beat-row__actions-col { gap: var(--sp-2); }
 }
