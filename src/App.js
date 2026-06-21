@@ -233,8 +233,6 @@ function App() {
 
         {currentPage === 'store' && (
           <>
-            {!authLoading && user ? <AddBeat onSuccess={fetchBeats} /> : null}
-
             <section className="store-section">
               <div className="store-heading-row">
                 <h2>Available Beats</h2>
@@ -245,7 +243,10 @@ function App() {
                   }}
                   className="cart-open-btn"
                 >
-                  🛒 Cart ({cart.length})
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="15" height="15" style={{marginRight: 6, verticalAlign: 'middle'}}>
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                  </svg>
+                  Cart ({cart.length})
                 </button>
               </div>
 
@@ -375,7 +376,11 @@ function App() {
         <aside className={`mini-cart-drawer ${cartDrawerOpen ? 'open' : ''}`}>
           <div className="mini-cart-header">
             <h3>Your Cart</h3>
-            <button type="button" onClick={() => setCartDrawerOpen(false)}>✕</button>
+            <button type="button" onClick={() => setCartDrawerOpen(false)} aria-label="Close cart">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                <path d="M18 6 6 18M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
           {cart.length === 0 ? (
             <p className="mini-cart-empty">No beats yet. Add a beat to get commercial rights.</p>

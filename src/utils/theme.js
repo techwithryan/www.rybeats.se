@@ -2,6 +2,15 @@ export const DEFAULT_THEME = {
   bgColor: '#0c0b09',
   primaryColor: '#d4a853',
   textColor: '#f0ece4',
+  // Navbar
+  navbarBg: '#0c0b09',
+  navbarOpacity: 0.92,          // 0–1
+  navbarBlur: true,
+  // Typography
+  fontSizeBase: 16,             // px, body text
+  fontSizeHeading: 48,          // px, h1
+  // Logo URL (empty = use default image)
+  logoUrl: '',
 };
 
 function clamp(n, min, max) {
@@ -50,9 +59,15 @@ function lighten(hex, amount) {
 
 export function normalizeTheme(theme) {
   return {
-    bgColor: theme?.bgColor || DEFAULT_THEME.bgColor,
-    primaryColor: theme?.primaryColor || DEFAULT_THEME.primaryColor,
-    textColor: theme?.textColor || DEFAULT_THEME.textColor,
+    bgColor:        theme?.bgColor        || DEFAULT_THEME.bgColor,
+    primaryColor:   theme?.primaryColor   || DEFAULT_THEME.primaryColor,
+    textColor:      theme?.textColor      || DEFAULT_THEME.textColor,
+    navbarBg:       theme?.navbarBg       || DEFAULT_THEME.navbarBg,
+    navbarOpacity:  theme?.navbarOpacity  ?? DEFAULT_THEME.navbarOpacity,
+    navbarBlur:     theme?.navbarBlur     ?? DEFAULT_THEME.navbarBlur,
+    fontSizeBase:   theme?.fontSizeBase   || DEFAULT_THEME.fontSizeBase,
+    fontSizeHeading:theme?.fontSizeHeading|| DEFAULT_THEME.fontSizeHeading,
+    logoUrl:        theme?.logoUrl        || DEFAULT_THEME.logoUrl,
   };
 }
 
@@ -71,6 +86,16 @@ export function applyTheme(themeInput) {
   root.style.setProperty('--accent-hi', lighten(theme.primaryColor, 12));
   root.style.setProperty('--accent-bg', `${theme.primaryColor}1a`);
   root.style.setProperty('--line', `${mix(theme.textColor, theme.bgColor, 0.85)}12`);
+
+  // Navbar
+  const rgb = hexToRgb(theme.navbarBg) || hexToRgb(theme.bgColor);
+  const op  = clamp(theme.navbarOpacity, 0, 1);
+  root.style.setProperty('--navbar-bg', rgb ? `rgba(${rgb.r},${rgb.g},${rgb.b},${op})` : theme.navbarBg);
+  root.style.setProperty('--navbar-blur', theme.navbarBlur ? 'blur(18px)' : 'none');
+
+  // Typography
+  root.style.setProperty('--font-size-base',    `${theme.fontSizeBase}px`);
+  root.style.setProperty('--font-size-heading',  `${theme.fontSizeHeading}px`);
 
   // Legacy aliases used in older code paths
   root.style.setProperty('--bg-color', theme.bgColor);

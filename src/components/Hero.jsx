@@ -1,28 +1,50 @@
 import { useState, useEffect, useCallback } from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { fetchHeroImageUrl } from '../utils/heroImage';
+import { getHeroImageUrl } from '../utils/heroImage';
 import './Hero.css';
 
-export default function Hero({ onNavigate }) {
-  const [heroImage, setHeroImage] = useState(null);
+// Inject a <link rel="preload"> into <head> so the browser fetches
+// the hero image as early as possible — before React even renders.
+function preloadHeroImage(url) {
+  if (!url) return;
+  const existing = document.querySelector('link[data-hero-preload]');
+  if (existing) { existing.href = url; return; }
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.as  = 'image';
+  link.href = url;
+  link.setAttribute('data-hero-preload', '1');
+  document.head.appendChild(link);
+}
 
-  const loadHeroImage = useCallback(async () => {
-    const url = await fetchHeroImageUrl();
+export default function Hero({ onNavigate }) {
+  // Use stable URL (no cache-bust) so browser cache works across visits
+  const [heroImage, setHeroImage] = useState(() => {
+    const url = getHeroImageUrl();
+    preloadHeroImage(url);
+    return url;
+  });
+
+  const reloadHeroImage = useCallback(() => {
+    const url = getHeroImageUrl();
+    preloadHeroImage(url);
     setHeroImage(url);
   }, []);
 
   useEffect(() => {
-    loadHeroImage();
-
     const onSettingsUpdated = (event) => {
       if (!event.detail?.type || event.detail.type === 'hero') {
-        loadHeroImage();
+        // After an upload we want fresh — add cache-bust just this once
+        import('../utils/heroImage').then(({ getHeroImageUrlFresh }) => {
+          const url = getHeroImageUrlFresh();
+          preloadHeroImage(url);
+          setHeroImage(url);
+        });
       }
     };
-
     window.addEventListener('rybeats-settings-updated', onSettingsUpdated);
     return () => window.removeEventListener('rybeats-settings-updated', onSettingsUpdated);
-  }, [loadHeroImage]);
+  }, [reloadHeroImage]);
 
   return (
     <section className="hero">

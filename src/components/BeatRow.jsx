@@ -70,7 +70,12 @@ export default function BeatRow({ beat, index, onPlay, onAddCart, onDelete, isPl
           aria-label={isBeatPlaying ? `Pause ${beat.name}` : `Play ${beat.name}`}
         >
           {isBeatPlaying ? <EqBars /> : <span className="beat-row__index">{String(index + 1).padStart(2, '0')}</span>}
-          <span className="beat-row__play-icon">{isBeatPlaying ? '⏸' : '▶'}</span>
+          <span className="beat-row__play-icon">
+            {isBeatPlaying
+              ? <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              : <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M8 5.14v14l11-7-11-7z"/></svg>
+            }
+          </span>
         </button>
       </div>
 
@@ -79,7 +84,7 @@ export default function BeatRow({ beat, index, onPlay, onAddCart, onDelete, isPl
         <div className="beat-row__thumb">
           {beat.image_url
             ? <img src={beat.image_url} alt={beat.name} />
-            : <span className="beat-row__thumb-placeholder">♩</span>}
+            : <span className="beat-row__thumb-placeholder" />}
         </div>
       </div>
 
@@ -139,7 +144,11 @@ export default function BeatRow({ beat, index, onPlay, onAddCart, onDelete, isPl
             className="beat-row__delete-btn"
             onClick={(e) => { e.stopPropagation(); onDelete(beat.id); }}
             aria-label={`Delete ${beat.name}`}
-          >🗑</button>
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+          </button>
         )}
       </div>
     </div>
