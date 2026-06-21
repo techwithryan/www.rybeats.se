@@ -26,7 +26,7 @@
   cursor: pointer;
   transition: opacity 0.2s ease;
   height: auto;
-  max-height: 70px !important; /* Adjust this value as needed */
+  max-height: 55px !important; /* Adjust this value as needed */
   width: auto;
 }
 

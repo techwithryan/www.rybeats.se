@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 import Navbar from './components/Navbar';
-import AddBeat from './components/AddBeat';
 import MusicPlayer from './components/MusicPlayer';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
